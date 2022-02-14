@@ -1,0 +1,70 @@
+Sub multi_graph()
+    
+    '時間軸の列番号を入力
+    Dim time_column_num As Integer: time_column_num = 3
+        
+    '最後の行と列の番号，および時間軸を抜いた特徴量の数を取得
+    Dim end_row_num As Integer: end_row_num = Cells(1, time_column_num).End(xlDown).Row
+    Dim end_column_num As Integer: end_column_num = Cells(1, Columns.Count).End(xlToLeft).Column
+    feature_num = end_column_num - time_column_num
+    
+    'グラフの初期位置とサイズを決定
+    Dim initial_left_position As Integer: initial_left_position = 50
+    Dim left_position As Integer: left_position = initial_left_position
+    Dim above_position As Integer: above_position = 40
+    Dim width As Integer: width = 350
+    Dim height As Integer: height = 200
+    
+    ''メインループ処理開始
+    For i = 1 To feature_num
+        '列番号をアルファベットに変換
+        Dim column_num2alphabet As String: column_num2alphabet = Split(Cells(1, i + time_column_num).Address, "$")(1)
+
+        'グラフ作成（ChartObjectsオブジェクト作成→データ範囲選択→見た目整形）
+        ActiveSheet.ChartObjects.Add left_position, above_position, width, height
+        With ActiveSheet.ChartObjects(i).Chart
+            .ChartType = xlXYScatter
+            .SetSourceData Union(Range("C1:C" & end_row_num), Range(column_num2alphabet & "1:" & column_num2alphabet & end_row_num))
+        
+            '詳細編集
+            .ChartTitle.Delete 'グラフタイトル
+            .HasLegend = False '凡例
+            .SeriesCollection(1).MarkerStyle = xlMarkerStyleCircle 'マーカー
+            .SeriesCollection(1).MarkerSize = 2
+            .ChartArea.Border.Color = RGB(0, 0, 0) 'グラフ外枠の色
+            
+            '縦軸
+            .Axes(xlValue, xlPrimary).HasTitle = True '縦軸ラベル
+            Dim xlvalue_text As String: xlvalue_text = Cells(1, i + time_column_num) '縦軸ラベルのテキストを取得＆定義
+            .Axes(xlValue, xlPrimary).AxisTitle.Text = xlvalue_text '縦軸ラベルのテキストを設定
+            .Axes(xlValue).AxisTitle.Font.Bold = True '縦軸ラベルを太字に変更
+            .Axes(xlValue).HasMajorGridlines = True '縦軸の目盛線を表示
+            .Axes(xlValue).MajorGridlines.Format.Line.ForeColor.RGB = RGB(217, 217, 217) '縦軸の目盛線の色を変更
+            .Axes(xlValue).Format.Line.ForeColor.RGB = RGB(217, 217, 217) '縦軸の色を変更
+            .Axes(xlValue).TickLabels.Font.Bold = True '縦軸フォントを太字に変更
+            .Axes(xlValue, xlPrimary).TickLabelPosition = xlLow '縦軸を左端に変更
+            
+            '横軸
+            .Axes(xlCategory, xlPrimary).HasTitle = True '横軸ラベル
+            Dim xlcategory_text As String: xlcategory_text = Cells(1, time_column_num) '横軸ラベルのテキストを取得＆定義（時間軸は固定）
+            .Axes(xlCategory, xlPrimary).AxisTitle.Text = xlcategory_text '横軸ラベルのテキストを設定
+            .Axes(xlCategory).AxisTitle.Font.Bold = True '横軸ラベルを太字に変更
+            .Axes(xlCategory).HasMajorGridlines = True '横軸の目盛線を表示
+            .Axes(xlCategory).MajorGridlines.Format.Line.ForeColor.RGB = RGB(217, 217, 217) '横軸の目盛線の色を変更
+            .Axes(xlCategory).Format.Line.ForeColor.RGB = RGB(217, 217, 217) '横軸の色を変更
+            .Axes(xlCategory).TickLabels.Font.Bold = True '横軸フォントを太字に変更
+            .Axes(xlCategory, xlPrimary).TickLabelPosition = xlLow '横軸を下端に変更
+            
+        End With
+        
+        'グラフ整列（横方向に３つグラフが並び，４つ目は下段に移行する）
+        If left_position < initial_left_position + width * 2 Then
+            left_position = left_position + width
+        Else
+            left_position = initial_left_position
+            above_position = above_position + height
+        End If
+    
+    Next
+
+End Sub
