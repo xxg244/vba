@@ -1,0 +1,30 @@
+Sub copy_xlsm2xlsx()
+    
+    'xlsmファイルのパスを入力
+    Dim wb0 As String
+    wb0 = InputBox("変換したいxlsmファイルのパスを入力してください" & vbCr & vbCr & "例）C:\Users\user\Desktop\filename.xlsm")
+
+    'xlsmファイルを開いて，アクティブにする
+    Workbooks.Open wb0
+    
+    'メイン処理
+    '...
+    
+    'ファイルパスとブック名を取得
+    Dim ObjFileSys As Object
+    Dim wb1 As String
+    Dim wb2 As String
+
+    wb1 = ActiveWorkbook.Name '拡張子付きのブック名を取得
+    Set ObjFileSys = CreateObject("Scripting.FileSystemObject")
+    wb2 = ObjFileSys.GetBaseName(wb1) '拡張子無しのブック名を取得
+        
+    'xlsxファイルの保存
+    Sheets("Sheet1").Copy
+    ActiveWorkbook.SaveAs ThisWorkbook.Path & "\" & wb2 & ".xlsx"
+    ActiveWorkbook.Close
+    
+    'xlsmファイルを閉じる
+    Workbooks(wb1).Close SaveChanges:=False
+    MsgBox "保存完了しました．"
+End Sub
